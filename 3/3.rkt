@@ -24,16 +24,22 @@
           (cons (add1 n) (+ count (* (expt 2 n) i)))))
 ))
 
+(define (to2dIntList input) (for/list ([row input])
+  (let ([chars (string->list (car row))]) 
+    (for/list ([c chars])
+      (if (eq? c #\0) 0 1)))))
+
+(define (gamma 2dlist half) (for/list ([row (transpose 2dlist)])
+  (if (> (length (filter positive? row)) half) 1 0)))
+
+(define (epsilon 2dlist half) (map (lambda (x) (modulo (+ x 1) 2)) (gamma 2dlist half)))  
 
 (define (part1Solver input)
-  (define indeces (build-list (length input) values))
-  (define 2dIntList (for/list ([row input])
-    (let ([chars (string->list (car row))]) 
-      (for/list ([c chars])
-        (if (eq? c #\0) 0 1)))))
-  (define gamma (for/list ([row (transpose 2dIntList)])
-    (if (> (length (filter positive? row)) (/ (length input) 2)) 1 0)))
-  (define epsilon (map (lambda (x) (modulo (+ x 1) 2)) gamma))  
-
-  (* (toDecimal epsilon) (toDecimal gamma))
+  (define half (/ (length input) 2))
+  (define 2dlist (to2dIntList input))
+  (* (toDecimal (epsilon 2dlist half)) (toDecimal (gamma 2dlist half)))
 ) 
+
+(define (part2Solver input)
+  input
+)
