@@ -42,7 +42,7 @@
          (cond
            [(eq? direction 'down ) (cons depthAcc (cons horizontalAcc (+ aimAcc units)))]
            [(eq? direction 'up ) (cons depthAcc (cons horizontalAcc (- aimAcc units)))]
-           [(eq? direction 'forward ) (cons (+ depthAcc (* aimAcc units)) (cons (+ horizontalAcc units) aimAcc))]
+           [(eq? direction 'forward ) (cons (+ depthAcc (aimAcc * units)) (cons (+ horizontalAcc units) aimAcc))]
            )))
      (cons 0 (cons 0 0))
      fixedInput)
