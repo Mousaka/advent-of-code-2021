@@ -40,6 +40,34 @@
   (* (toDecimal (epsilon 2dlist half)) (toDecimal (gamma 2dlist half)))
 ) 
 
-(define (part2Solver input)
-  input
+(define (patternFilter pos n)
+  (lambda (row) 
+    (= n (list-ref row pos))
+  )
 )
+
+(define (gamma2 2dlist) 
+  (define half (/ (length 2dlist) 2))
+  (for/list ([row (transpose 2dlist)])
+  (if (>= (length (filter positive? row)) half) 1 0)))
+
+(define (epsilon2 2dlist) 
+  (define half (/ (length 2dlist) 2))
+  (for/list ([row (transpose 2dlist)])
+  (if (>= (length (filter positive? row)) half) 0 1)))
+
+(define (part2Solver input)
+
+  (define (inner mfunc bitPos alist) 
+    (define ga (mfunc alist))
+    (if (or (= 1 (length alist)) (= bitPos (length ga)))
+      alist
+      (inner mfunc (add1 bitPos) (filter (patternFilter bitPos (list-ref ga bitPos)) alist))
+    ))
+
+   (* (toDecimal (first (inner epsilon2 0 (to2dIntList input))))
+      (toDecimal (first (inner gamma2 0 (to2dIntList input)))))
+)
+
+(part1Solver readInput)
+(part2Solver readInput)
