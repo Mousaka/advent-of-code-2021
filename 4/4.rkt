@@ -1,6 +1,6 @@
 #lang racket
 (require racket/trace)
-(define in (open-input-file "4/input.txt"))
+(define in (open-input-file "sample.txt"))
 
 (define readInput
   (for/list ([line (in-lines in)])
@@ -15,15 +15,30 @@
   (apply map list matrix))
 
 
-
-(define (p1 input)
-  (define draws 
-    (map string->number (string-split (car input) #rx","))
-    )
-  (define boards (readBoards (cdr (cdr input))))
-  (cons draws (map flatSquare boards)) 
+(define (bingoCheck ogBoard board draws draw)
+  ; (displayln "Board")
+  ; (displayln board)
+   (if (< (length (set->list draws)) 5) 0
+      (let ([bingoRow 
+        (for/fold ([acc '()])
+          ([row board] #:unless (= (length acc) 5))
+          (let ([intersection (set->list (set-intersect row draws))]) 
+            (if (= (length intersection) 5) intersection '())))])
+      (if (eq? bingoRow '()) 0 (countBoard ogBoard bingoRow draws draw))
+   ))
 )
-(p1 smallInput)
+
+(define (countBoard ogBoard bingoRow draws lastDraw)  
+  (define winnerRowSum (apply + bingoRow)) 
+  (define boardSum 
+      (for/sum ([row ogBoard])
+        (for/sum ([i row] #:when (not (set-member? draws i))) i))
+  )
+  (- boardSum winnerRowSum)
+)
+ 
+
+; (p1 smallInput)
 (define (addToBoard board line)
   (define ns (filter number? (map string->number (regexp-split #px"\\s{1,2}" line))))
   ; (displayln ns)
@@ -66,9 +81,7 @@
 
 (define (flatSquare square)
   (define diags (diagonals square))
-  (display "diag: ")(displayln diags)
-  (append square (transpose square) diags)
-)
+  (map list->set (append square (transpose square) diags)))
 
 (define smallInput 
   '("12,32,1,2,5,3"
@@ -95,3 +108,26 @@
     (6 10 3 18 5)
     (1 12 20 15 19))
 )
+
+(define (solver1 draws boards)
+  (displayln "Solvie time")
+  (define fixedBoards (for/list ([board boards]) (cons (flatSquare board) board)))
+  (define res (for/fold
+    ([acc (cons '() 0)])
+    ([draw draws] [board fixedBoards] 
+      #:unless (> (cdr acc) 0))
+    (cons (cons draw (car acc)) (bingoCheck (cdr board) (car board) (list->set (cons draw (car acc))) draw))))
+  (cdr res)
+)
+
+(define (p1 input)
+  (define draws 
+    (map string->number (string-split (car input) #rx","))
+    )
+  (define boards (readBoards (cdr (cdr input))))
+  (solver1 draws boards)
+)
+
+
+;tsolver
+(p1 readInput)
