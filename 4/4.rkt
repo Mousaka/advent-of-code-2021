@@ -24,7 +24,7 @@
           ([row board] #:unless (= (length acc) 5))
           (let ([intersection (set->list (set-intersect row draws))]) 
             (if (= (length intersection) 5) intersection '())))])
-      (if (eq? bingoRow '()) 0 (countBoard ogBoard bingoRow draws draw))
+        (if (eq? bingoRow '()) 0 (countBoard ogBoard bingoRow draws draw))
    ))
 )
 
@@ -34,7 +34,9 @@
       (for/sum ([row ogBoard])
         (for/sum ([i row] #:when (not (set-member? draws i))) i))
   )
-  (- boardSum winnerRowSum)
+  (displayln boardSum)
+  (displayln winnerRowSum)
+  (* boardSum lastDraw)
 )
  
 
@@ -80,8 +82,8 @@
 ; (diagonals testBoard)
 
 (define (flatSquare square)
-  (define diags (diagonals square))
-  (map list->set (append square (transpose square) diags)))
+  ; (define diags (diagonals square))
+  (map list->set (append square (transpose square))))
 
 (define smallInput 
   '("12,32,1,2,5,3"
@@ -112,7 +114,7 @@
 (define (solver1 draws boards)
   (displayln "Solvie time")
   (define fixedBoards (for/list ([board boards]) (cons (flatSquare board) board)))
-  (define res (for/fold
+  (define res (for*/fold
     ([acc (cons '() 0)])
     ([draw draws] [board fixedBoards] 
       #:unless (> (cdr acc) 0))
@@ -125,6 +127,7 @@
     (map string->number (string-split (car input) #rx","))
     )
   (define boards (readBoards (cdr (cdr input))))
+  (displayln draws)
   (solver1 draws boards)
 )
 
